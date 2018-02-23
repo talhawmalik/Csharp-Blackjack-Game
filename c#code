@@ -1,0 +1,100 @@
+using System;
+using System.Collections.Generic;
+					
+public class Program
+{
+	public class blackJack 
+	{
+		public Random randomCard = new Random();
+		public int userTotal = 0;
+		public int cardBenchmark;
+		public int dealerTotal = 0;
+		public int cardDrawn;
+		public string[] cardSuite = new string[] {"Hearts", "Clubs", "Spades", "Diamonds"};
+		public int randomSuiteChosen;
+		public int randomSuite;
+		
+		//dealer draws random card between 1 and 10
+		public blackJack() 
+		{
+			int randomNumber = randomCard.Next(1, 10);
+			int cardDrawn = randomNumber;
+			cardBenchmark = 21;
+		}
+	 }
+			public static void Main()
+			{
+				int i; 
+				int totalUserPoints;
+				int totalDealerPoints;
+				blackJack newGame = new blackJack();
+				int newRand = newGame.randomCard.Next(1, 10);
+				int newRand2 = newGame.randomCard.Next(1, 10);
+				int newRandSuite = newGame.randomCard.Next(1, newGame.cardSuite.Length);
+				
+				//initializing random card drawn for user and dealer
+				totalUserPoints = (newGame.userTotal += newRand);
+				totalDealerPoints = (newGame.dealerTotal += newRand2);
+				
+				Console.WriteLine("Welcome to Blackjack! The objective is to beat the dealer and not go over 21!" +
+								  " Here is your first card: " + totalUserPoints + " of " + newGame.cardSuite[newRandSuite]);
+				
+				//i < 6 because if you generally exceed 5 draws in blackjack, you win.
+				for (i = 0; i < 5; i++) 
+				{
+					Console.WriteLine("Would you like to hit or stay?");
+					string tempUserAnswer = Console.ReadLine();
+					string userAnswer = tempUserAnswer.ToLower();
+					if (userAnswer == "hit") 
+					{
+						//drawing a random card (random number)
+						int randomDrawnCardForUser = newGame.randomCard.Next(1, 10);
+						int randomDrawnCardForDealer = newGame.randomCard.Next(1, 10);
+						totalUserPoints += randomDrawnCardForUser;
+						totalDealerPoints += randomDrawnCardForDealer;
+						if (totalUserPoints > newGame.cardBenchmark) 
+						{
+							Console.WriteLine("You've gone over 21! You have " + totalUserPoints + " points now!");
+							break;
+						}
+						Console.WriteLine("Your total is now " + totalUserPoints);		
+					}
+					else if (userAnswer == "stay") 
+					{
+						break;
+					}
+					else 
+					{
+						Console.WriteLine("That is not an option! Please type in 'hit' or 'stay'");
+					}
+				}
+				//calculating if both dealer and user are over 21
+				Console.WriteLine("Your cards added up to " + totalUserPoints + "! And the dealer's cards added up to " + totalDealerPoints);
+				
+				if (totalDealerPoints > 21) 
+				{
+					if (totalUserPoints < 21) 
+					{
+						Console.WriteLine("You win! The dealer went over 21!");
+					}
+					else 
+					{
+						Console.WriteLine("You both lose! Both you and the dealer went over 21!");
+					}
+						
+				}
+				//calculating who won if both user and dealer are under 21 - getting point differential and inserting into dictionary
+				if (totalDealerPoints < 21 && totalUserPoints < 21) 
+				{
+					int userPointDifference = (newGame.cardBenchmark - totalUserPoints); 
+					int dealerPointDifference = (newGame.cardBenchmark - totalDealerPoints);
+					var newDictionary = new Dictionary<string, int>();
+					newDictionary.Add("User", userPointDifference);
+					newDictionary.Add("Dealer", dealerPointDifference);
+					foreach (KeyValuePair<string, int> pair in newDictionary)
+					{
+						Console.Write("{0} was {1} points away from 21! ", pair.Key, pair.Value);
+					}
+				}	
+			}
+}
