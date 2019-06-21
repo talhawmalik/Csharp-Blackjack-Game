@@ -1,100 +1,66 @@
 using System;
 using System.Collections.Generic;
-					
-public class Program
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ConsoleApplication1
 {
-	public class blackJack 
-	{
-		public Random randomCard = new Random();
-		public int userTotal = 0;
-		public int cardBenchmark;
-		public int dealerTotal = 0;
-		public int cardDrawn;
-		public string[] cardSuite = new string[] {"Hearts", "Clubs", "Spades", "Diamonds"};
-		public int randomSuiteChosen;
-		public int randomSuite;
-		
-		//dealer draws random card between 1 and 10
-		public blackJack() 
-		{
-			int randomNumber = randomCard.Next(1, 10);
-			int cardDrawn = randomNumber;
-			cardBenchmark = 21;
-		}
-	 }
-			public static void Main()
-			{
-				int i; 
-				int totalUserPoints;
-				int totalDealerPoints;
-				blackJack newGame = new blackJack();
-				int newRand = newGame.randomCard.Next(1, 10);
-				int newRand2 = newGame.randomCard.Next(1, 10);
-				int newRandSuite = newGame.randomCard.Next(1, newGame.cardSuite.Length);
-				
-				//initializing random card drawn for user and dealer
-				totalUserPoints = (newGame.userTotal += newRand);
-				totalDealerPoints = (newGame.dealerTotal += newRand2);
-				
-				Console.WriteLine("Welcome to Blackjack! The objective is to beat the dealer and not go over 21!" +
-								  " Here is your first card: " + totalUserPoints + " of " + newGame.cardSuite[newRandSuite]);
-				
-				//i < 6 because if you generally exceed 5 draws in blackjack, you win.
-				for (i = 0; i < 5; i++) 
-				{
-					Console.WriteLine("Would you like to hit or stay?");
-					string tempUserAnswer = Console.ReadLine();
-					string userAnswer = tempUserAnswer.ToLower();
-					if (userAnswer == "hit") 
-					{
-						//drawing a random card (random number)
-						int randomDrawnCardForUser = newGame.randomCard.Next(1, 10);
-						int randomDrawnCardForDealer = newGame.randomCard.Next(1, 10);
-						totalUserPoints += randomDrawnCardForUser;
-						totalDealerPoints += randomDrawnCardForDealer;
-						if (totalUserPoints > newGame.cardBenchmark) 
-						{
-							Console.WriteLine("You've gone over 21! You have " + totalUserPoints + " points now!");
-							break;
-						}
-						Console.WriteLine("Your total is now " + totalUserPoints);		
-					}
-					else if (userAnswer == "stay") 
-					{
-						break;
-					}
-					else 
-					{
-						Console.WriteLine("That is not an option! Please type in 'hit' or 'stay'");
-					}
-				}
-				//calculating if both dealer and user are over 21
-				Console.WriteLine("Your cards added up to " + totalUserPoints + "! And the dealer's cards added up to " + totalDealerPoints);
-				
-				if (totalDealerPoints > 21) 
-				{
-					if (totalUserPoints < 21) 
-					{
-						Console.WriteLine("You win! The dealer went over 21!");
-					}
-					else 
-					{
-						Console.WriteLine("You both lose! Both you and the dealer went over 21!");
-					}
-						
-				}
-				//calculating who won if both user and dealer are under 21 - getting point differential and inserting into dictionary
-				if (totalDealerPoints < 21 && totalUserPoints < 21) 
-				{
-					int userPointDifference = (newGame.cardBenchmark - totalUserPoints); 
-					int dealerPointDifference = (newGame.cardBenchmark - totalDealerPoints);
-					var newDictionary = new Dictionary<string, int>();
-					newDictionary.Add("User", userPointDifference);
-					newDictionary.Add("Dealer", dealerPointDifference);
-					foreach (KeyValuePair<string, int> pair in newDictionary)
-					{
-						Console.Write("{0} was {1} points away from 21! ", pair.Key, pair.Value);
-					}
-				}	
-			}
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Welcome to Blackjack! No Aces or Wilds! Type 1 to HIT and 2 to STAY");
+            var usedCards = new List<Dictionary<int, string>>(); 
+            try
+            {
+                //If user is still under 21 after 5 iterations (i.e. 5 drawn cards), they automatically win
+                for (int i = 0; i <= 5; i++)
+                {
+                    //draw initial card
+                    int totalCount = 0;
+                    if (i == 5) { Console.WriteLine("You have exceeded five cards. Congrats! You win!"); break; }
+                    Console.WriteLine("Would you like to hit or stay?"); var answer = Console.ReadLine();
+                    //Determinng whether the user hits or stays and calculating total
+                    if (answer == "2") { compareScores(usedCards); break;} else if (answer == "1") { checkIfNewOrUsedCard(ref usedCards); }
+                    usedCards.ForEach(x => x.ToList().ForEach(zr => totalCount += zr.Key));
+                    if (totalCount > 21) { Console.WriteLine("You've gone over 21! You Lose!"); break; }
+                    Console.WriteLine("Your total count is up to " + totalCount.ToString());
+                }
+                var unecessaryVariable = Console.ReadLine();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("Something went wrong in the calculation: " + ex.Message);
+                //ex.Log to database
+                //Release any hung object memory and collect garbage- method to release any memory from datatable, lists, etc.
+                //release any hung threads or garbage depending on the generation of the object
+             }
+            }
+        private static void compareScores(List<Dictionary<int,string>> usedCards)
+        {
+            Random dealersRandomNum = new Random(); int userScore = 0; int dealerScore = dealersRandomNum.Next(1, 21);
+            usedCards.ForEach(x => x.ToList().ForEach(zr => userScore += zr.Key));
+            Console.WriteLine("Your score is " + userScore.ToString() + "!. The dealer's score is " + dealerScore.ToString());
+        }
+        
+        private static void checkIfNewOrUsedCard(ref List<Dictionary<int, string>> usedCards )
+        {
+            //Check if nextDrawnCard has already been added to usedCards
+            for (int i = 0; i < 1000; i++) {
+                var nextDrawnCard = drawCard();
+                if (!usedCards.Contains(nextDrawnCard))  {
+                    usedCards.Add(nextDrawnCard);
+                    Console.WriteLine(nextDrawnCard.First().Key.ToString() + " of " + nextDrawnCard.First().Value.ToString());break; }  
+                }
+        }
+        private static Dictionary<int, string> drawCard()
+        {
+            //This function returns a card with the card number and selected suite. I.e. 9 of Hearts
+            Random rndomSelection = new Random();
+            var suite = new List<string> { "Hearts", "Clubs", "Spades", "Diamonds" };
+            var card = new Dictionary<int, string>(); card.Add(rndomSelection.Next(1, 10), suite[rndomSelection.Next(suite.Count)]);
+            return card;
+        }
+    }
 }
